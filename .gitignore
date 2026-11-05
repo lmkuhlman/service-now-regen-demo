@@ -1,0 +1,8 @@
+
+# Self-Regenerating App data
+.regen/
+recommendations/
+.dev_reset
+.env
+__pycache__/
+.DS_Store

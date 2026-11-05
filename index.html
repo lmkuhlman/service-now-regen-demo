@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ServiceNow Security Operations (SecOps)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- Top Banner / Global Header -->
+  <header class="sn-header">
+    <div class="sn-brand-zone">
+      <div class="sn-logo" title="ServiceNow Platform">
+        <svg viewBox="0 0 32 32" width="26" height="26" fill="none" stroke="currentColor">
+          <circle cx="16" cy="16" r="13" stroke="#81b5a1" stroke-width="2.5"/>
+          <circle cx="16" cy="16" r="5.5" fill="#62d3a4" stroke="none"/>
+          <path d="M16 3 A13 13 0 0 1 29 16" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <span class="sn-logo-text">now</span>
+      </div>
+      <span class="sn-divider"></span>
+      <div class="sn-workspace-info">
+        <span class="sn-app-title">Security Operations</span>
+        <span class="sn-app-subtitle">Security Incident Response Workspace</span>
+      </div>
+    </div>
+
+    <div class="sn-search-bar">
+      <svg class="search-icon" viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="9" cy="9" r="6"/>
+        <line x1="13.5" y1="13.5" x2="18" y2="18" stroke-linecap="round"/>
+      </svg>
+      <input id="global-search" type="text" placeholder="Search incidents, IOCs, IP addresses, assets (e.g. SEC0012, Cobalt, 10.4)..." />
+      <span class="search-kbd">Ctrl+K</span>
+    </div>
+
+    <div class="sn-user-actions">
+      <button class="sn-icon-btn" id="btn-quick-new" title="New Security Incident">+ New</button>
+      <div class="sn-badge-indicator" title="SOC System Health: Operational">
+        <span class="pulse-dot"></span>
+        <span class="health-text">SOC Online</span>
+      </div>
+      <div class="user-profile-badge">
+        <div class="user-avatar">LK</div>
+        <div class="user-meta">
+          <span class="user-name">Lane Kuhlman</span>
+          <span class="user-role">SOC Lead Analyst</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Navigation Sub-header / Tabs -->
+  <nav class="sn-subnav">
+    <div class="tab-list" role="tablist">
+      <button class="tab-btn active" data-tab="incidents">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M10 2L3 5v6c0 5 7 7 7 7s7-2 7-7V5l-7-3z"/>
+          <path d="M10 7v4M10 14h.01" stroke-linecap="round"/>
+        </svg>
+        Security Incidents <span class="counter-bubble" id="incidents-count">5</span>
+      </button>
+      <button class="tab-btn" data-tab="vulnerabilities">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <circle cx="10" cy="10" r="7"/>
+          <line x1="10" y1="7" x2="10" y2="11"/>
+          <circle cx="10" cy="13.5" r=".5" fill="currentColor"/>
+        </svg>
+        Vulnerabilities & VR
+      </button>
+      <button class="tab-btn" data-tab="threat-intel">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M3 10a7 7 0 1014 0 7 7 0 00-14 0z"/>
+          <path d="M10 6v4l2.5 2"/>
+        </svg>
+        Threat Intelligence (IOCs)
+      </button>
+      <button class="tab-btn" data-tab="mitre">
+        <svg viewBox="0 0 20 20" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8">
+          <rect x="3" y="3" width="5" height="5" rx="1"/>
+          <rect x="12" y="3" width="5" height="5" rx="1"/>
+          <rect x="3" y="12" width="5" height="5" rx="1"/>
+          <rect x="12" y="12" width="5" height="5" rx="1"/>
+        </svg>
+        MITRE ATT&amp;CK Alignment
+      </button>
+    </div>
+    <div class="subnav-controls">
+      <span class="live-status-clock" id="utc-clock">UTC 00:00:00</span>
+      <button class="btn-refresh" id="btn-refresh" title="Refresh live feeds">
+        <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M13.5 8a5.5 5.5 0 1 1-1.6-3.9L14 6" stroke-linecap="round"/>
+          <path d="M14 2.5v3.5h-3.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main App View -->
+  <div class="sn-container">
+    <!-- KPI Metrics -->
+    <section class="kpi-grid" id="kpi-summary">
+      <div class="kpi-card critical">
+        <div class="kpi-header">
+          <span class="kpi-label">Critical (P1) Active</span>
+          <span class="kpi-icon-badge">P1</span>
+        </div>
+        <div class="kpi-value" id="kpi-p1-count">2</div>
+        <div class="kpi-footer text-danger">Requires immediate containment</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">High / Medium Active</span>
+          <span class="kpi-icon-badge neutral">P2-P3</span>
+        </div>
+        <div class="kpi-value" id="kpi-p2-count">3</div>
+        <div class="kpi-footer text-muted">Under active SOC investigation</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">MTTD / Mean Time Detect</span>
+          <span class="kpi-icon-badge success">SLA</span>
+        </div>
+        <div class="kpi-value">14 <span class="kpi-unit">mins</span></div>
+        <div class="kpi-footer text-success">&darr; 28% from last week target</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Automated Playbooks Run</span>
+          <span class="kpi-icon-badge accent">SOAR</span>
+        </div>
+        <div class="kpi-value" id="kpi-playbooks-count">42</div>
+        <div class="kpi-footer text-accent">100% successful containment</div>
+      </div>
+    </section>
+
+    <!-- Main View Content Area -->
+    <div class="workspace-split" id="workspace-split">
+      <!-- Left / Primary: Grid View -->
+      <main class="workspace-main">
+        <div class="table-toolbar">
+          <div class="filter-chips" id="filter-chips">
+            <button class="chip active" data-filter="all">All Records</button>
+            <button class="chip" data-filter="p1">P1 - Critical</button>
+            <button class="chip" data-filter="containment">Containment Phase</button>
+            <button class="chip" data-filter="my">Assigned to Me</button>
+          </div>
+          <div class="toolbar-actions">
+            <button class="action-btn secondary" id="btn-filter-toggle">
+              <svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.7">
+                <path d="M2 3h12M4 8h8M6 13h4" stroke-linecap="round"/>
+              </svg>
+              Filter
+            </button>
+            <button class="action-btn primary" id="btn-create-modal-trigger">+ New Incident</button>
+          </div>
+        </div>
+
+        <!-- Incident Records Table -->
+        <div class="table-wrapper" id="view-incidents">
+          <table class="sn-data-table">
+            <thead>
+              <tr>
+                <th style="width: 32px;">
+                  <input type="checkbox" id="select-all-check" />
+                </th>
+                <th>Number</th>
+                <th>Priority</th>
+                <th>Short Description</th>
+                <th>State</th>
+                <th>Category</th>
+                <th>Assigned To</th>
+                <th>Target CI</th>
+                <th>SLA</th>
+              </tr>
+            </thead>
+            <tbody id="incidents-tbody">
+              <!-- Generated via JS -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Alternative View: Vulnerabilities Tab -->
+        <div class="tab-view-container hidden" id="view-vulnerabilities">
+          <div class="view-header">
+            <h3>Vulnerability Response (VR) - Critical Remediation Tasks</h3>
+            <p class="sub-desc">Automated ingestion from Qualys &amp; Tenable scanners correlated with CMDB Assets.</p>
+          </div>
+          <div class="vulnerability-cards" id="vuln-cards-list"></div>
+        </div>
+
+        <!-- Alternative View: Threat Intel IOCs -->
+        <div class="tab-view-container hidden" id="view-threat-intel">
+          <div class="view-header">
+            <h3>Threat Intelligence &amp; Observable Indicators</h3>
+            <p class="sub-desc">Real-time threat feeds matching active endpoints and network flow logs.</p>
+          </div>
+          <div class="table-wrapper">
+            <table class="sn-data-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Observable / IOC Value</th>
+                  <th>Threat Feed / Source</th>
+                  <th>Malicious Score</th>
+                  <th>Associated Incident</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="threat-tbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Alternative View: MITRE ATT&CK Matrix -->
+        <div class="tab-view-container hidden" id="view-mitre">
+          <div class="view-header">
+            <h3>MITRE ATT&amp;CK Matrix Alignment</h3>
+            <p class="sub-desc">Mapping observed security events directly to enterprise adversary techniques.</p>
+          </div>
+          <div class="mitre-matrix-grid" id="mitre-matrix"></div>
+        </div>
+      </main>
+
+      <!-- Right: Detailed Incident Drawer Panel -->
+      <aside class="workspace-drawer" id="incident-drawer">
+        <div class="drawer-header">
+          <div class="drawer-title-row">
+            <span class="badge-pill" id="drawer-priority-badge">P1 Critical</span>
+            <h2 id="drawer-incident-number">SEC0010482</h2>
+          </div>
+          <button class="btn-close-drawer" id="btn-close-drawer" title="Close Panel">&times;</button>
+        </div>
+
+        <div class="drawer-content" id="drawer-body">
+          <h3 class="drawer-heading" id="drawer-title">Cobalt Strike C2 Beaconing from Domain Controller</h3>
+          
+          <!-- Lifecycle Progress Tracker -->
+          <div class="lifecycle-stepper" id="lifecycle-stepper">
+            <div class="step completed" data-state="Draft">1. Draft</div>
+            <div class="step completed" data-state="Analysis">2. Analysis</div>
+            <div class="step active" data-state="Containment">3. Containment</div>
+            <div class="step" data-state="Eradication">4. Eradicate</div>
+            <div class="step" data-state="Closed">5. Closed</div>
+          </div>
+
+          <!-- Quick Action Buttons -->
+          <div class="drawer-actions-bar">
+            <button class="btn-now primary" id="btn-advance-state">Advance to Eradication &rarr;</button>
+            <button class="btn-now danger" id="btn-isolate-host">Isolate Host (EDR)</button>
+          </div>
+
+          <!-- Details Grid -->
+          <div class="spec-grid">
+            <div class="spec-item">
+              <label>Configuration Item (CI)</label>
+              <span class="val fw-bold" id="drawer-ci">DC-PROD-01.corp</span>
+            </div>
+            <div class="spec-item">
+              <label>Assignment Group</label>
+              <span class="val" id="drawer-group">Tier 3 SecOps Escalation</span>
+            </div>
+            <div class="spec-item">
+              <label>Assigned Analyst</label>
+              <span class="val" id="drawer-analyst">Lane Kuhlman</span>
+            </div>
+            <div class="spec-item">
+              <label>Security Impact Risk Score</label>
+              <span class="val badge-risk-score" id="drawer-risk">96 / 100</span>
+            </div>
+          </div>
+
+          <!-- Automated Playbook Tasks -->
+          <div class="drawer-section">
+            <div class="section-title-row">
+              <h4>Security Playbook (SIR-PB-042)</h4>
+              <span class="section-sub-badge" id="playbook-status-badge">2 of 3 Done</span>
+            </div>
+            <div class="playbook-tasks" id="playbook-tasks-list">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+
+          <!-- Indicators of Compromise -->
+          <div class="drawer-section">
+            <h4>Extracted Observables / IOCs</h4>
+            <div class="ioc-tags" id="drawer-ioc-list">
+              <!-- Tags by JS -->
+            </div>
+          </div>
+
+          <!-- Work Notes / Activity Log -->
+          <div class="drawer-section">
+            <h4>Work Notes &amp; Audit Trail</h4>
+            <div class="journal-input-box">
+              <textarea id="new-work-note" rows="2" placeholder="Add analyst work note (visible to SecOps team)..."></textarea>
+              <button class="btn-now secondary btn-small" id="btn-post-note">Post Note</button>
+            </div>
+            <div class="journal-feed" id="drawer-journal-feed">
+              <!-- Populated by JS -->
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Create Incident Modal -->
+  <div class="modal-backdrop hidden" id="create-incident-modal">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <h3>Create New Security Incident</h3>
+        <button class="btn-close-modal" id="btn-modal-cancel">&times;</button>
+      </div>
+      <form id="create-incident-form">
+        <div class="modal-body">
+          <div class="form-group">
+            <label for="form-title">Short Description *</label>
+            <input type="text" id="form-title" required placeholder="e.g. Suspicious PowerShell execution on EXCH-01" />
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="form-priority">Priority</label>
+              <select id="form-priority">
+                <option value="1 - Critical">1 - Critical (P1)</option>
+                <option value="2 - High" selected>2 - High (P2)</option>
+                <option value="3 - Moderate">3 - Moderate (P3)</option>
+                <option value="4 - Low">4 - Low (P4)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="form-category">Category</label>
+              <select id="form-category">
+                <option value="Malware">Malware / C2</option>
+                <option value="Phishing">Phishing / Social Eng</option>
+                <option value="Ransomware">Ransomware Attempt</option>
+                <option value="Unauthorized Access">Unauthorized Access</option>
+                <option value="Data Exfiltration">Data Exfiltration</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="form-ci">Affected Configuration Item (CI)</label>
+              <input type="text" id="form-ci" required placeholder="e.g. AWS-KUBE-PROD-09" />
+            </div>
+            <div class="form-group">
+              <label for="form-assignee">Assign To</label>
+              <input type="text" id="form-assignee" value="Lane Kuhlman" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="form-ioc">Key IOC / Observable (Optional)</label>
+            <input type="text" id="form-ioc" placeholder="IP address, domain, or SHA256 hash" />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-now secondary" id="btn-cancel-form">Cancel</button>
+          <button type="submit" class="btn-now primary">Submit Security Incident</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast-container" id="toast-container"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
