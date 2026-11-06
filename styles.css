@@ -478,6 +478,23 @@ body {
   border-color: var(--sn-brand-dark);
 }
 
+.chip[data-filter="all"] {
+  background: var(--sn-accent-blue);
+  color: #ffffff;
+  border-color: var(--sn-accent-blue);
+}
+
+.chip[data-filter="all"]:hover {
+  background: var(--sn-accent-hover);
+  border-color: var(--sn-accent-hover);
+}
+
+.chip[data-filter="all"].active {
+  background: var(--sn-accent-blue);
+  color: #ffffff;
+  border-color: var(--sn-accent-blue);
+}
+
 .toolbar-actions {
   display: flex;
   gap: 8px;
