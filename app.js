@@ -256,7 +256,7 @@ function renderIncidentsTable() {
 
     tr.innerHTML = `
       <td onclick="event.stopPropagation()">
-        <input type="checkbox" />
+        <input type="checkbox" aria-label="Select incident ${inc.id}" />
       </td>
       <td><span class="inc-number">${inc.id}</span></td>
       <td><span class="p-badge ${pClass}">${inc.priority}</span></td>
