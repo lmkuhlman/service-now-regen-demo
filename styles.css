@@ -479,20 +479,20 @@ body {
 }
 
 .chip[data-filter="all"] {
-  background: var(--sn-accent-blue);
+  background: var(--sn-brand-green);
   color: #ffffff;
-  border-color: var(--sn-accent-blue);
+  border-color: var(--sn-brand-green);
 }
 
 .chip[data-filter="all"]:hover {
-  background: var(--sn-accent-hover);
-  border-color: var(--sn-accent-hover);
+  background: #1b8b63;
+  border-color: #1b8b63;
 }
 
 .chip[data-filter="all"].active {
-  background: var(--sn-accent-blue);
+  background: var(--sn-brand-green);
   color: #ffffff;
-  border-color: var(--sn-accent-blue);
+  border-color: var(--sn-brand-green);
 }
 
 .toolbar-actions {
