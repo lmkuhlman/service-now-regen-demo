@@ -13,7 +13,7 @@ class TestApp(unittest.TestCase):
     def test_warning_icon_present(self):
         with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as f:
             content = f.read()
-            self.assertNotIn("warning-icon", content)
+            self.assertIn("warning-icon", content)
             self.assertIn("Requires immediate containment", content)
 
     def test_main_page_has_a_title(self):
