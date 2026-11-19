@@ -10,6 +10,12 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 class TestApp(unittest.TestCase):
+    def test_warning_icon_present(self):
+        with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as f:
+            content = f.read()
+            self.assertIn("warning-icon", content)
+            self.assertIn("Requires immediate containment", content)
+
     def test_main_page_has_a_title(self):
         with open(os.path.join(ROOT, "index.html"), encoding="utf-8") as f:
             self.assertRegex(f.read(), re.compile(r"<title>\s*\S", re.IGNORECASE))
